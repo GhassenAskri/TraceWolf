@@ -1,10 +1,11 @@
-# Deep Evaluation White Paper
+# TraceWolf Design Paper
 
-**Author:** g.askri@instadeep.com | **Status:** Draft | **Last updated:** 18 Oct 2026
+**Author:** ghassen.askri@outlook.com | **Status:** Draft | **Last updated:** 25 Oct 2026;;
+
 
 ## Goal
 
-Deep Evaluation is a loop that finds the mistakes a tool-using agent makes in production, turns them into tests, and proves each fix on real conversations without touching real systems.
+TraceWolf is a loop that finds the mistakes a tool-using agent makes in production, has a human confirm them, turns them into tests, and proves each fix on the exact moments the agent failed, without touching production.
 
 It is a chain of three steps, with the developer's fix between Find mistakes and Semantic unit tests. Each step uses what the step before produced and hands its result to the step after. Once the fixed version is in production, it is recorded and the loop starts again.
 
@@ -16,18 +17,17 @@ flowchart LR
     X --> T["3 · Semantic unit tests"]
     T -- "fixed version in production" --> R
 ```
-
 ---
 
 ## 1. Record
 
-The customer adds the **Wolf SDK** to their agent app. Record collects the **conversations**, as traces and spans: everything the agent did, turn by turn, with every LLM call and every tool call in full.
+The customer adds the **TraceWolf SDK** to their agent app. Record collects the **conversations**, as traces and spans: everything the agent did, turn by turn, with every LLM call and every tool call in full.
 
 Every later step is built on them. If a tool result is missing, **[Find mistakes](#2-find-mistakes)** can't see that the agent contradicted it.
 
 ```mermaid
 flowchart LR
-    A["Agent app<br/>+ Wolf SDK"] -- "conversations<br/>(traces and spans)" --> API["Wolf Backend"]
+    A["Agent app<br/>+ TraceWolf SDK"] -- "conversations<br/>(traces and spans)" --> API["TraceWolf backend"]
 ```
 
 ---
@@ -332,7 +332,7 @@ Scenarios = [Scenario]   // one list per issue, one scenario per kind of situati
 }
 ```
 
-Wolf writes the scenarios from the issue's notes.
+TraceWolf writes the scenarios from the issue's notes.
 
 ### 3.2 Execution
 
