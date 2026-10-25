@@ -1,0 +1,56 @@
+[project]
+name = "aicontrol-api"
+version = "0.1.0"
+description = "AIControl API: OTLP ingest, trace storage (Postgres index + S3) and a JSON API."
+requires-python = ">=3.11"
+dependencies = [
+  "aioboto3>=15.5,<16",
+  "alembic>=1.20,<2",
+  "fastapi[standard]>=0.141,<1",
+  "opentelemetry-proto>=1.38,<2",
+  "psycopg[binary]>=3.3,<4",
+  "pydantic-settings>=2.15,<3",
+  "sqlalchemy[asyncio]>=2.0.54,<2.1",
+]
+
+[dependency-groups]
+dev = [
+  # The local SDK + openai produce genuine spans for ingest tests (and the e2e tests).
+  "aicontrol",
+  "httpx2>=2.13,<3",
+  "openai>=3,<4",
+  "pytest>=9,<10",
+  "pytest-asyncio>=1,<2",
+  "ruff>=0.16",
+  "testcontainers[postgres]>=4.15,<5",
+]
+
+[tool.uv.sources]
+aicontrol = { path = "../sdk", editable = true }
+
+# The API is an application that is run, not a package that is installed.
+[tool.uv]
+package = false
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+asyncio_mode = "auto"
+# Live tests call real services (the OpenAI API) and are opt-in: `uv run pytest -m e2e`.
+addopts = "-m 'not e2e'"
+markers = ["e2e: live end-to-end test against real services, no mocks (needs OPENAI_API_KEY)"]
+filterwarnings = [
+  # Raised inside opentelemetry-instrumentation-openai (class-based pydantic config), not our code.
+  "ignore:Support for class-based `config` is deprecated:DeprecationWarning",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.ruff.lint.isort]
+# The local `alembic/` folder holds migrations; the `alembic` import is the installed package.
+known-third-party = ["alembic"]

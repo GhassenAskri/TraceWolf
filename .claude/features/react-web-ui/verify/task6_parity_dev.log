@@ -1,0 +1,24 @@
+--- preparing data
+--- http://127.0.0.1:8011 (old, server-rendered)  vs  http://localhost:5173 (React)
+
+IDENTICAL           landing (closed)
+IDENTICAL           tool calls
+IDENTICAL           tool calls + full input open
+IDENTICAL           error call
+IDENTICAL           50 calls (first screen)
+IDENTICAL           hostile name and text
+IDENTICAL           hostile text in the full input
+IDENTICAL           edge cases (nulls, ? tokens, stream tag, 0 ms, 2 finish reasons, 1/3 tools, nested tool args)
+IDENTICAL           long conversation name
+IDENTICAL           slash name team/support
+IDENTICAL           missing trace object in the full input
+IDENTICAL           sidebar scrolled to Load more
+IDENTICAL           time filter (2 calls)
+IDENTICAL           empty time range
+IDENTICAL           DARK landing
+IDENTICAL           DARK tool calls + full input
+IDENTICAL           NARROW tool calls
+IDENTICAL           NARROW full input (old UI overflows here)
+
+18 of 18 screens are pixel-identical; unexpected differences: 0
+console/network errors on the React UI: none

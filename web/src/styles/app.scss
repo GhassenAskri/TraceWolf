@@ -1,0 +1,772 @@
+// Carbon provides the components, tokens and light theme (white). Only the styles of the components
+// the app uses are included (the whole library is ~1 MB of CSS); add one here when you use a new
+// Carbon component. The fonts are self-hosted (@fontsource, see main.tsx) instead of loaded from
+// IBM's CDN. The rest of this file adds the dark theme and the few rules the app needs.
+@use '@carbon/react/scss/config' with (
+  $css--font-face: false
+);
+@use '@carbon/react/scss/colors';
+@use '@carbon/react/scss/reset';
+@use '@carbon/react/scss/layer';
+@use '@carbon/react/scss/layout';
+@use '@carbon/react/scss/zone';
+@use '@carbon/react/scss/components/accordion';
+@use '@carbon/react/scss/components/button';
+@use '@carbon/react/scss/components/code-snippet';
+@use '@carbon/react/scss/components/copy-button';
+@use '@carbon/react/scss/components/form';
+@use '@carbon/react/scss/components/inline-loading';
+@use '@carbon/react/scss/components/link';
+@use '@carbon/react/scss/components/loading';
+@use '@carbon/react/scss/components/modal';
+@use '@carbon/react/scss/components/notification';
+@use '@carbon/react/scss/components/popover';
+@use '@carbon/react/scss/components/search';
+@use '@carbon/react/scss/components/tabs';
+@use '@carbon/react/scss/components/tag';
+@use '@carbon/react/scss/components/text-input';
+@use '@carbon/react/scss/components/tile';
+@use '@carbon/react/scss/components/tooltip';
+@use '@carbon/react/scss/components/ui-shell';
+@use '@carbon/react/scss/spacing' as *;
+@use '@carbon/react/scss/theme';
+@use '@carbon/react/scss/themes';
+@use '@carbon/react/scss/type';
+
+// Follow the operating system, like the previous UI did.
+:root {
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+    @include theme.theme(themes.$g100);
+  }
+}
+
+// The interactive colour (buttons, links, focus ring, selection, the active tab and menu item) is
+// Carbon's own blue. The status colours (error, success, warning) keep their meaning.
+
+// --- App shell ----------------------------------------------------------------------------
+// The header and the side navigation are the "frame": darker than the page, which sits in a panel
+// with a rounded top-left corner. Inside the frame a few Carbon tokens are re-pointed, so the
+// hover and selected states of Carbon's own components follow without overriding each rule.
+:root {
+  --app-chrome: #{colors.$gray-20};
+  --app-chrome-hover: rgba(0, 0, 0, 0.06);
+  --app-chrome-selected: rgba(0, 0, 0, 0.1);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --app-chrome: #{colors.$black};
+    --app-chrome-hover: rgba(255, 255, 255, 0.08);
+    --app-chrome-selected: rgba(255, 255, 255, 0.14);
+  }
+}
+
+html,
+body {
+  background: var(--app-chrome);
+}
+
+.cds--header,
+.cds--side-nav {
+  --cds-background: var(--app-chrome);
+  --cds-layer-hover: var(--app-chrome-hover);
+  --cds-layer-selected: var(--app-chrome-selected);
+  --cds-layer-selected-hover: var(--app-chrome-selected);
+  --cds-layer-active: var(--app-chrome-selected);
+
+  background: var(--app-chrome);
+  border: 0;
+}
+
+// The page: fills what the frame leaves, with the top-left corner rounded where it meets the
+// header and the side navigation (only when the navigation is shown beside it).
+.cds--content {
+  min-block-size: calc(100vh - 3rem);
+  background: theme.$background;
+
+  @media (min-width: 66rem) {
+    border-block-start: 1px solid theme.$border-subtle;
+    border-inline-start: 1px solid theme.$border-subtle;
+    border-start-start-radius: 1rem;
+  }
+}
+
+// Carbon offsets `.cds--content` for the side navigation (a 3rem rail when collapsed); on narrow
+// screens the navigation is an overlay, so the content needs no offset at all.
+@media (max-width: 65.98rem) {
+  .cds--side-nav ~ .cds--content,
+  .cds--side-nav.cds--side-nav--expanded ~ .cds--content {
+    margin-inline-start: 0;
+  }
+}
+
+// `.page` keeps long lines readable.
+.page {
+  max-inline-size: 64rem;
+  margin-inline: auto;
+}
+
+.page-title {
+  @include type.type-style('heading-05');
+  margin-block-end: $spacing-06;
+  overflow-wrap: anywhere; // a conversation name has no spaces to break on
+}
+
+.section-label {
+  @include type.type-style('label-02');
+  margin-block: $spacing-06 $spacing-03;
+  color: theme.$text-secondary;
+  text-transform: uppercase;
+}
+
+.page p + .section-label {
+  margin-block-start: $spacing-07;
+}
+
+.muted {
+  @include type.type-style('body-01');
+  margin-block-end: $spacing-05;
+  color: theme.$text-secondary;
+}
+
+// --- Projects ------------------------------------------------------------------------------
+
+// The project switcher at the top right of the header: a button, and a panel under it.
+.project-switcher-trigger {
+  @include type.type-style('body-compact-01');
+  display: flex;
+  gap: $spacing-03;
+  align-items: center;
+  block-size: 3rem;
+  max-inline-size: 18rem;
+  padding-inline: $spacing-05;
+  color: theme.$text-primary;
+  cursor: pointer;
+  background: transparent;
+  border: 0;
+
+  &:hover {
+    background: var(--app-chrome-hover);
+  }
+
+  &:focus-visible {
+    outline: 2px solid theme.$focus;
+    outline-offset: -2px;
+  }
+
+  @media (max-width: 41.98rem) {
+    max-inline-size: 9rem;
+    padding-inline: $spacing-04;
+  }
+}
+
+.project-switcher-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.project-switcher-panel {
+  inline-size: 22rem;
+  max-inline-size: calc(100vw - 2rem);
+  padding: $spacing-04;
+}
+
+.project-switcher-label {
+  @include type.type-style('label-01');
+  margin-block: $spacing-05 $spacing-02;
+  color: theme.$text-secondary;
+  text-transform: uppercase;
+}
+
+.project-switcher-list {
+  max-block-size: 16rem;
+  overflow: auto;
+}
+
+.project-switcher-item {
+  display: flex;
+  flex-direction: column;
+  inline-size: 100%;
+  padding: $spacing-03 $spacing-04;
+  color: theme.$text-primary;
+  text-align: start;
+  cursor: pointer;
+  background: transparent;
+  border: 0;
+
+  &:hover {
+    background: theme.$layer-hover;
+  }
+
+  &:focus-visible {
+    outline: 2px solid theme.$focus;
+    outline-offset: -2px;
+  }
+
+  &[aria-current='true'] {
+    background: theme.$layer-selected;
+  }
+}
+
+.project-switcher-item-name {
+  @include type.type-style('body-compact-02');
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.project-switcher-item-meta {
+  @include type.type-style('label-01');
+  color: theme.$text-secondary;
+}
+
+.project-switcher-note {
+  @include type.type-style('helper-text-01');
+  margin-block-start: $spacing-04;
+  color: theme.$text-secondary;
+
+  &.error {
+    color: theme.$text-error;
+  }
+}
+
+.project-switcher-new {
+  @include type.type-style('body-compact-01');
+  display: flex;
+  gap: $spacing-03;
+  align-items: center;
+  inline-size: 100%;
+  margin-block-start: $spacing-04;
+  padding: $spacing-04;
+  color: theme.$link-primary;
+  cursor: pointer;
+  background: transparent;
+  border: 0;
+  border-block-start: 1px solid theme.$border-subtle;
+
+  &:hover {
+    background: theme.$layer-hover;
+  }
+
+  &:focus-visible {
+    outline: 2px solid theme.$focus;
+    outline-offset: -2px;
+  }
+}
+
+// The "New project" dialog: the slug and the code to copy appear under the name as it is typed.
+.new-project-code {
+  margin-block-start: $spacing-05;
+
+  .muted {
+    margin-block: $spacing-03;
+  }
+
+  .cds--snippet {
+    max-inline-size: 100%;
+  }
+}
+
+.slug-preview {
+  display: flex;
+  gap: $spacing-04;
+  align-items: baseline;
+
+  code {
+    @include type.type-style('code-02');
+    overflow-wrap: anywhere;
+  }
+}
+
+.slug-preview-label {
+  @include type.type-style('label-01');
+  color: theme.$text-secondary;
+  text-transform: uppercase;
+}
+
+// The projects of the start page: one clickable tile each.
+.project-list {
+  display: grid;
+  gap: $spacing-04;
+  margin-block-end: $spacing-05;
+}
+
+.project-list .cds--tile {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-02;
+  max-inline-size: 100%;
+}
+
+.project-name {
+  @include type.type-style('heading-compact-02');
+  overflow-wrap: anywhere;
+}
+
+.project-meta {
+  @include type.type-style('label-01');
+  color: theme.$text-secondary;
+}
+
+// --- Observe: the conversations of the project in a column beside the page ---------------------
+
+// Inside a project the page uses the whole panel, edge to edge (the padding of the page moves
+// into the column and the content), so the line between them can run from the top of the panel
+// to the bottom.
+.page--wide {
+  max-inline-size: none;
+  margin: calc(#{$spacing-07} * -1);
+}
+
+.observe {
+  display: grid;
+  grid-template-columns: 17rem minmax(0, 1fr);
+
+  @media (min-width: 66rem) {
+    // At least as tall as the panel under the header (1px: its top border), more if the page is.
+    min-block-size: calc(100vh - 3rem - 1px);
+  }
+
+  @media (max-width: 65.98rem) {
+    // Narrow: the column sits above the page.
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+// The page's width, so the trace panel can stack itself when the room beside the column is short
+// (a viewport width would not know about the column).
+.observe-main {
+  min-inline-size: 0;
+  padding: $spacing-05 $spacing-07 $spacing-07 $spacing-05; // close to the header and to the line of the column
+  container-type: inline-size;
+}
+
+// The cell is as tall as the page and carries the line; the list inside it sticks under the
+// header and scrolls on its own when it is long.
+.conv-column {
+  border-inline-end: 1px solid theme.$border-subtle;
+
+  @media (max-width: 65.98rem) {
+    border-inline-end: 0;
+    border-block-end: 1px solid theme.$border-subtle;
+  }
+}
+
+.conv-column-inner {
+  position: sticky;
+  inset-block-start: 3rem; // under the header
+  max-block-size: calc(100vh - 3rem);
+  padding: $spacing-05 $spacing-05 $spacing-07 $spacing-07;
+  overflow: auto;
+
+  @media (max-width: 65.98rem) {
+    position: static;
+    max-block-size: 16rem;
+    padding: $spacing-05;
+  }
+}
+
+.conv-column-title {
+  @include type.type-style('heading-compact-02');
+  margin-block-end: $spacing-04;
+}
+
+.conv-list {
+  display: grid;
+  gap: $spacing-01;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+// A conversation is two lines: its name, then the call count and the time of the last call.
+.conv-item {
+  display: flex;
+  flex-direction: column;
+  padding: $spacing-03 $spacing-04;
+  color: theme.$text-primary;
+  text-decoration: none;
+  border-inline-start: 3px solid transparent;
+
+  &:hover {
+    background: theme.$layer-hover-01;
+  }
+
+  &:focus-visible {
+    outline: 2px solid theme.$focus;
+    outline-offset: -2px;
+  }
+
+  &[aria-current='page'] {
+    background: theme.$layer-selected-01;
+    border-inline-start-color: theme.$border-interactive;
+
+    .conv-name {
+      font-weight: 600;
+    }
+  }
+}
+
+.conv-name,
+.conv-meta {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.conv-name {
+  @include type.type-style('body-compact-02');
+}
+
+.conv-meta {
+  @include type.type-style('label-01');
+  color: theme.$text-secondary;
+}
+
+// Notes in the column ("Loading…", errors) sit above the list.
+.conversations-note {
+  @include type.type-style('helper-text-01');
+  margin-block-end: $spacing-03;
+  color: theme.$text-secondary;
+
+  &.error {
+    color: theme.$text-error;
+  }
+}
+
+// --- Timeline -------------------------------------------------------------------------------
+
+.timeline {
+  display: grid;
+  gap: $spacing-05;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+// A trace: a panel with the tree of its calls on the left and the selected row on the right,
+// separated by a line (the panel itself has no border).
+// The panel is as tall as its content up to 85% of the window; each side then scrolls on its own.
+$trace-rail: $spacing-06; // where the vertical line runs: under the centre of the trace icon
+$trace-branch: $spacing-05; // length of the horizontal stroke into a row
+
+.trace-panel {
+  display: grid;
+  grid-template-columns: minmax(13rem, 20rem) minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
+  max-block-size: 85vh;
+  min-block-size: 14rem;
+  // The tree starts right beside the line of the column: it takes back the padding of the page
+  // (its own rows keep a small padding).
+  margin-inline-start: calc(#{$spacing-05} * -1);
+
+  @container (max-width: 40rem) {
+    // Narrow: the tree sits above the detail, each with its own limited height.
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: none;
+    max-block-size: none;
+  }
+}
+
+.trace-nav {
+  padding: $spacing-04 $spacing-04 $spacing-04 $spacing-03;
+  overflow: auto;
+  border-inline-end: 1px solid theme.$border-subtle;
+
+  @container (max-width: 40rem) {
+    max-block-size: 24rem;
+    border-inline-end: 0;
+    border-block-end: 1px solid theme.$border-subtle;
+  }
+}
+
+.trace-detail {
+  min-inline-size: 0;
+  padding: $spacing-05;
+  overflow: auto;
+}
+
+// The tree. Each row hangs off a vertical line: a row draws its own piece of it (down to the next
+// row, or only to its branch when it is the last), so the line ends at the last row.
+.tnodes {
+  margin: 0;
+  margin-inline-start: $trace-rail;
+  padding: 0;
+  padding-inline-start: $trace-branch;
+  list-style: none;
+
+  > li {
+    position: relative;
+    padding-block-start: $spacing-02;
+
+    &::before,
+    &::after {
+      position: absolute;
+      content: '';
+    }
+
+    &::before {
+      inset-block: 0;
+      inset-inline-start: calc(#{$trace-branch} * -1);
+      border-inline-start: 1px solid theme.$border-strong;
+    }
+
+    &::after {
+      inset-block-start: calc(50% + #{$spacing-02} / 2);
+      inset-inline-start: calc(#{$trace-branch} * -1);
+      inline-size: $trace-branch;
+      border-block-start: 1px solid theme.$border-strong;
+    }
+
+    &:last-child::before {
+      inset-block-end: auto;
+      block-size: calc(50% + #{$spacing-02} / 2);
+    }
+  }
+}
+
+.tnode {
+  display: flex;
+  gap: $spacing-04;
+  align-items: center;
+  inline-size: 100%;
+  padding: $spacing-03 $spacing-04;
+  color: theme.$text-primary;
+  text-align: start;
+  cursor: pointer;
+  background: theme.$layer-01;
+  border: 0;
+  border-radius: 0.25rem;
+
+  &:hover {
+    background: theme.$layer-hover-01;
+  }
+
+  &:focus-visible {
+    outline: 2px solid theme.$focus;
+    outline-offset: -2px;
+  }
+
+  &.tnode--selected {
+    background: theme.$layer-selected-01;
+  }
+}
+
+.tnode-text {
+  display: flex;
+  flex-direction: column;
+  min-inline-size: 0;
+}
+
+.tnode-title {
+  @include type.type-style('body-compact-02');
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tnode-sub {
+  @include type.type-style('label-01');
+  overflow: hidden;
+  color: theme.$text-secondary;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tnode-icon {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  inline-size: 1.5rem;
+  block-size: 1.5rem;
+  color: colors.$white;
+  border-radius: 0.25rem;
+
+  &.tnode-icon--trace {
+    background: colors.$blue-60;
+  }
+
+  &.tnode-icon--llm {
+    background: colors.$purple-60;
+  }
+
+  &.tnode-icon--tool {
+    background: colors.$orange-50;
+  }
+
+  &.tnode-icon--error {
+    background: theme.$support-error;
+  }
+}
+
+.detail-head {
+  display: flex;
+  gap: $spacing-04;
+  align-items: center;
+  margin-block-end: $spacing-05;
+}
+
+.detail-title {
+  @include type.type-style('heading-03');
+  overflow-wrap: anywhere;
+}
+
+.detail-section {
+  margin-block-end: $spacing-05;
+}
+
+// Carbon keeps a tab panel's own padding; the content sits close under the tab row.
+.trace-detail .cds--tab-content {
+  padding: $spacing-05 0 0;
+}
+
+.fields {
+  display: grid;
+  grid-template-columns: minmax(8rem, 12rem) minmax(0, 1fr);
+  gap: $spacing-03 $spacing-05;
+  margin-block-end: $spacing-05;
+
+  dt {
+    @include type.type-style('body-compact-01');
+    color: theme.$text-secondary;
+  }
+
+  dd {
+    @include type.type-style('body-compact-01');
+    overflow-wrap: anywhere;
+    margin: 0;
+
+    code {
+      @include type.type-style('code-01');
+    }
+  }
+}
+
+// Carbon caps a code snippet at 768px; the detail pane decides the width here.
+.trace-detail .cds--snippet {
+  max-inline-size: 100%;
+}
+
+.call--error .cds--tile {
+  // A call is a Carbon Tile; an error call is outlined in the error colour.
+  box-shadow: inset 0 0 0 1px theme.$support-error;
+}
+
+.call-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-02 $spacing-03;
+  align-items: center;
+  margin-block-end: $spacing-04;
+
+  // Carbon tags carry their own outer margin; the gap above does the spacing here.
+  .cds--tag {
+    margin: 0;
+  }
+}
+
+.call-time {
+  @include type.type-style('label-01');
+  color: theme.$text-secondary;
+}
+
+.call-model {
+  @include type.type-style('heading-compact-01');
+}
+
+.messages {
+  display: grid;
+  gap: $spacing-03;
+  margin-block-end: $spacing-03;
+}
+
+.msg {
+  padding: $spacing-04 $spacing-05;
+  border-inline-start: 3px solid theme.$border-strong;
+  // The messages sit in a Layer, so this is one step above the call tile.
+  background: theme.$layer;
+
+  &.msg--user {
+    border-inline-start-color: theme.$border-interactive;
+  }
+
+  &.msg--system {
+    border-inline-start-color: colors.$purple-60;
+  }
+
+  &.msg--tool {
+    border-inline-start-color: theme.$support-warning;
+  }
+}
+
+.msg-role {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-03;
+  align-items: center;
+  margin-block-end: $spacing-02;
+
+  .cds--tag {
+    margin: 0;
+  }
+
+  code {
+    @include type.type-style('code-01');
+  }
+}
+
+.msg-content {
+  @include type.type-style('body-01');
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+.msg-tool-call {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-03;
+  align-items: baseline;
+  margin-block-start: $spacing-03;
+
+  .cds--tag {
+    margin: 0;
+  }
+
+  code {
+    @include type.type-style('code-01');
+    overflow-wrap: anywhere;
+  }
+}
+
+.full-trace {
+  margin-block-start: $spacing-04;
+  padding-block-start: $spacing-04;
+  border-block-start: 1px dashed theme.$border-strong;
+}
+
+// Carbon caps a code snippet at 768px; the call card is wider than that.
+.full-trace .cds--snippet {
+  max-inline-size: 100%;
+}
+
+.trace-key {
+  @include type.type-style('label-01');
+  margin-block-start: $spacing-04;
+  color: theme.$text-secondary;
+
+  code {
+    overflow-wrap: anywhere; // a long S3 key must wrap on narrow screens
+  }
+}
+
+.more {
+  display: flex;
+  justify-content: center;
+  margin-block: $spacing-05;
+}
