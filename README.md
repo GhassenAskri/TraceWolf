@@ -3,6 +3,8 @@
 TraceWolf finds the mistakes your tool-using AI agent makes in production, has a human confirm them, and proves your fix on the exact moments the agent failed.
 
 
+<img width="1536" height="1024" alt="Architecture et boucle d’amélioration TraceWolf" src="https://github.com/user-attachments/assets/0862016b-42be-4ff1-b9b3-ca3019baae2c" />
+
 
 ## The problem
 
