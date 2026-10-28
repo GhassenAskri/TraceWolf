@@ -2,9 +2,9 @@
 
 TraceWolf finds the mistakes your tool-using AI agent makes in production, has a human confirm them, and proves your fix on the exact moments the agent failed.
 
-
-<img width="1536" height="1024" alt="Architecture et boucle d’amélioration TraceWolf" src="https://github.com/user-attachments/assets/0862016b-42be-4ff1-b9b3-ca3019baae2c" />
-
+<p align="center">
+  <img width="100%" alt="Architecture et boucle d’amélioration TraceWolf" src="docs/tracewolf-architecture.png" />
+</p>
 
 ## The problem
 
@@ -14,17 +14,25 @@ Teams that run a tool-using agent in production (an agent that searches products
 
 ```mermaid
 flowchart LR
-    R["Record"] --> F["Find mistakes"]
-    F --> X["Fix<br/>(developer)"]
-    X --> T["Semantic unit tests"]
+    R["Trace ingestion"] --> F["Mistake detection<br/>and clustering"]
+    F --> H["Issue review"]
+    H --> X["Fix<br/>(developer)"]
+    X --> T["Regression tests<br/>and verification"]
     T -- "fixed version in production" --> R
 ```
 
-- **Record:** the SDK captures every LLM call and tool call of each conversation.
-- **Find mistakes:** an LLM judge writes a note on every step, similar notes are grouped into issues, and a human keeps or dismisses each issue.
-- **Semantic unit tests:** each issue becomes scenarios that stop just before the mistake. The fixed agent runs on them with one command, and each comes back `fixed`, `not_fixed` or `new_behavior`.
+- **Trace ingestion:** the SDK captures every LLM call and tool call of each conversation.
+- **Mistake detection and clustering:** an LLM judge writes a note on every step, and similar notes are grouped into issues.
+- **Issue review:** the team keeps or dismisses each new issue; only kept issues become tests.
+- **Regression tests and verification:** each kept issue becomes scenarios that stop just before the mistake. The fixed agent runs on them with one command, and each comes back `fixed`, `not_fixed` or `new_behavior`.
+- **Judge tuning** (beside the loop): humans check samples of the judge's notes, and their corrections make it better.
 
 ## Documents
 
-- [TraceWolf Design Paper](docs/trace-wolf-design-paper.md): the full design.
+- [TraceWolf Design Paper](docs/trace-wolf-design-paper.md): the goal and the loop, with links to each step.
+- [Trace ingestion](docs/trace-ingestion.md)
+- [Mistake detection and clustering](docs/mistake-detection-and-clustering.md)
+- [Issue review](docs/issue-review.md)
+- [Regression tests and verification](docs/regression-tests.md)
+- [Judge tuning](docs/judge-tuning.md)
 
